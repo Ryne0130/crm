@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--只配置Shiro的组件-->
+
+    <!-- 定义ShiroFilter,必须跟filter-name名称一致 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!--安全管理器-->
+        <property name="securityManager" ref="securityManager"/>
+        <!--登录的资源叫什么名称-->
+        <property name="loginUrl" value="/login.html"/>
+        <!--哪些资源需要认证-->
+        <property name="filterChainDefinitions">
+            <value>
+                <!--js/images/css中的内容不需要认证-->
+                /js/**=anon
+                /images/**=anon
+                /css/**=anon
+                <!--访问/logout.do资源时表示退出认证-->
+                /logout.do=logout
+                /employee/register.do=anon
+                <!--其他所有的资源都需要认证-->
+                /register.html=anon  <!-- 新增，允许匿名访问注册页面 -->
+                /views/register/register.do=anon  <!-- 新增，允许匿名访问注册页面 -->
+                /**=authc
+            </value>
+        </property>
+        <!--配置自定义的拦截器-->
+        <property name="filters">
+            <map>
+                <!--替换默认的authc-->
+                <entry key="authc" value-ref="formFilter"/>
+            </map>
+        </property>
+    </bean>
+
+    <!--基于web使用的安全管理器-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!--数据桥梁Realm-->
+        <property name="realm" ref="realm"/>
+        <!--配置缓存管理器-->
+        <property name="cacheManager" ref="cacheManager"/>
+    </bean>
+
+    <!--加密的凭证匹配器-->
+    <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+        <!--配置使用的加密算法-->
+        <property name="hashAlgorithmName" value="md5" />
+    </bean>
+
+    <!--开启shiro注解授权-->
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager" />
+    </bean>
+
+    <!-- 缓存管理器开始 -->
+    <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <property name="cacheManager" ref="ehCacheManager"/>
+    </bean>
+
+    <bean id="ehCacheManager" class ="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:shiro-ehcache.xml" />
+        <property name="shared" value="true"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>叩丁狼客户管理系统</title>
+    <link rel="stylesheet" href="/css/core.css" type="text/css" />
+    <link rel="stylesheet" href="/js/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/core.css" type="text/css" />
+    <script src="/js/jquery/jquery-2.1.4.min.js"></script>
+    <script src="/js/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/plugins/message/jquery.bootstrap.min.js"></script>
+    <script src="/js/plugins/jqueryForm/jquery.form.js"></script>
+    <style type="text/css">
+        body {
+            background-color: white;
+        }
+
+        .cm-container {
+            margin-top: 160px;
+        }
+
+        .login {
+            width: 360px;
+            height: 300px;
+            margin: 0 auto;
+        }
+    </style>
+    <script type="text/javascript">
+
+        $(function () {
+            // 给新员工注册链接绑定点击事件
+            $("a[href='#']").click(function (e) {
+                e.preventDefault();
+                // 隐藏登录部分
+                $("#loginForm").hide();
+                // 显示注册表单
+                $("#registrationForm").show();
+            });
+
+            // 给注册表单的返回登录按钮绑定点击事件
+            $("#backToLogin").click(function () {
+                // 隐藏注册表单
+                $("#registrationForm").hide();
+                // 显示登录部分
+                $("#loginForm").show();
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+<div class="container cm-container">
+    <h3 class="text-center"><label style="color: #337ab7;">叩丁狼客户管理系统(系统管理平台)</label></h3>
+    <hr />
+    <div class="login">
+        <form id="loginForm" action="/login.html" method="post">
+            <div class="form-group form-group-lg">
+                <div class="input-group">
+                    <div class="input-group-addon">账&emsp;号</div>
+                    <input class="form-control" name="username" value="admin" />
+                </div>
+            </div>
+            <div class="form-group form-group-lg">
+                <div class="input-group">
+                    <div class="input-group-addon">密&emsp;码</div>
+                    <input class="form-control" name="password" type="password" value="1" />
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-lg btn-primary btn-block" id="btn_submit">登录</button>
+            </div>
+            <div class="form-group">
+                <a href="#">新员工注册</a>
+            </div>
+        </form>
+        <form id="registrationForm" action="/register" method="post" enctype="multipart/form-data" style="display: none;">
+            <h2>员工信息注册</h2>
+            <p>请填写真实的资料，用于派单/日常工作和结算工资的时候联系你，填完会由管理员审核，乱填的人会列入企业黑名单。</p>
+            <label for="name">姓名：</label>
+            <input type="text" name="name" id="name" required><br><br>
+            <label for="wechatNumber">员工微信号：</label>
+            <input type="text" name="wechatNumber" id="wechatNumber" required><br><br>
+            <label for="wechatName">员工微信名：</label>
+            <input type="text" name="wechatName" id="wechatName" required><br><br>
+            <label for="phoneNumber">员工手机号：</label>
+            <input type="text" name="phoneNumber" id="phoneNumber" required><br><br>
+            <label for="enterpriseWechatName">员工企业微信名：</label>
+            <input type="text" name="enterpriseWechatName" id="enterpriseWechatName" required><br><br>
+            <label for="identity">员工身份：</label>
+            <select name="identity" id="identity">
+                <option value="设计师">设计师</option>
+                <option value="客服">客服</option>
+            </select><br><br>
+            <label for="qrCodeImage">微信收款二维码图（用于发工资）：</label>
+            <input type="file" name="qrCodeImage" id="qrCodeImage" required><br><br>
+            <label>员工拥有的技能是：</label><br><br>
+            <input type="checkbox" name="ppt">PPT 设计<br><br>
+            <input type="checkbox" name="customer_service">客服<br><br>
+            <input type="checkbox" name="poster">海报设计<br><br>
+            <input type="checkbox" name="album">画册设计<br><br>
+            <input type="checkbox" name="copywriting">文案写作<br><br>
+            <input type="checkbox" name="thesis" onchange="showThesisInput(this)">论文<br><br>
+            <input type="text" name="thesisDetails" style="display: none;" placeholder="论文的专业是（可填多个）"><br><br>
+            <input type="checkbox" name="professional_skill" onchange="showProfessionalSkillInput(this)">其他的专业技能<br><br>
+            <input type="text" name="professionalSkillDetails" style="display: none;" placeholder="专业技能是（可填多个）"><br><br>
+            <label for="password">员工密码：</label>
+            <input type="password" name="password" id="password" style="font-family: monospace; letter-spacing: 1px;" required><br><br>
+            <input type="submit" value="注册" onclick="submitForm()">
+            <button type="button" id="backToLogin">返回登录</button>
+        </form>
+    </div>
+</div>
+</body>
+
+</html>

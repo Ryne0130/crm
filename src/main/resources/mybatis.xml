@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	
+	<!-- 只配置该框架的个性设置:如settings,plugins -->
+	<settings>
+		<!--开启延时加载  -->
+		<setting name="lazyLoadingEnabled" value="true"/>
+		<!--积极关联查询-->
+		<setting name="aggressiveLazyLoading" value="false"/>
+		<!--触发关联查询的方法-->
+		<setting name="lazyLoadTriggerMethods" value="clone"/>
+	</settings>
+
+	<plugins>
+		<!-- com.github.pagehelper为PageHelper类所在包名 -->
+		<plugin interceptor="com.github.pagehelper.PageInterceptor">
+			<!-- 配置插件参数:仅配置了合理化物理分页 -->
+			<property name="reasonable" value="true"/>
+		</plugin>
+	</plugins>
+	
+</configuration>
+
+
+
+
+
+
+
+

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wolfcode.crm.mapper.EmployeeMapper">
+  <resultMap id="BaseResultMap" type="Employee">
+    <id column="id" property="id" />
+    <result column="name" property="name" />
+    <result column="password" property="password" />
+    <result column="age" property="age" />
+    <result column="email" property="email" />
+    <result column="admin" property="admin" />
+    <!-- 封装one方对象 -->
+    <association property="dept" javaType="Department" columnPrefix="d_" >
+      <id column="id" property="id" />
+      <result column="name" property="name" />
+    </association>
+    <!-- 封装many方对象-->
+    <collection property="roles" column="id"
+                select="cn.wolfcode.crm.mapper.RoleMapper.selectByEmployeeId"/>
+</resultMap>
+  <delete id="deleteByPrimaryKey">
+    delete from employee
+    where id = #{id}
+  </delete>
+  <delete id="deleteRelation">
+    delete from employee_role where employee_id = #{employeeId}
+  </delete>
+  <delete id="batchDelete">
+    delete from employee where id in
+    <foreach collection="array" item="ele" open="(" separator="," close=")">
+      #{ele}
+    </foreach>
+  </delete>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into employee (name, password, age, email, admin, dept_id)
+    values (#{name}, #{password}, #{age}, #{email}, #{admin}, #{dept.id})
+  </insert>
+  <insert id="insertRelation">
+    insert into employee_role (employee_id, role_id)
+    values (#{employeeId}, #{roleId})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update employee
+    set name = #{name},
+      age = #{age},
+      email = #{email},
+      admin = #{admin},
+      dept_id = #{dept.id}
+    where id = #{id}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    <include refid="base_column"/>
+    <include refid="base_table"/>
+    where e.id = #{id}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    <include refid="base_column"/>
+    <include refid="base_table"/>
+  </select>
+
+  <select id="selectForList" resultMap="BaseResultMap">
+    <include refid="base_column"/>
+    <include refid="base_table"/>
+    <include refid="base_where"/>
+  </select>
+
+  <!-- 根据账号和密码查询员工信息 -->
+  <select id="selectByInfo" resultType="employee">
+    select id, name, admin from employee
+    where name = #{username} and password = #{password}
+  </select>
+    <select id="selectByName" resultType="employee">
+      select id,name,password,admin from employee where name = #{name}
+    </select>
+
+    <sql id="base_column">
+    select
+        e.id, e.name, e.age, e.email, e.admin,
+        d.id d_id, d.name d_name
+  </sql>
+  <sql id="base_table">
+    from employee e
+    left join department d on e.dept_id = d.id
+  </sql>
+  <sql id="base_where">
+    <where>
+      <if test="keyword != null">
+        and (
+          e.name like concat('%', #{keyword}, '%') or
+          e.email like concat('%', #{keyword}, '%')
+        )
+      </if>
+      <if test="deptId > 0">
+        and e.dept_id = #{deptId}
+      </if>
+    </where>
+  </sql>
+
+  <insert id="insertQrCodeImage" parameterType="map">
+        INSERT INTO qr_code_image (id, qr_code_image)
+        VALUES (#{id}, #{qrCodeImage})
+    </insert>
+
+  <insert id="insertEmployee" parameterType="Employee" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO employee (
+    <trim prefix="" suffix="" suffixOverrides=",">
+      <if test="name!= null">name,</if>
+      <if test="password!= null">password,</if>
+      <if test="age!= null">age,</if>
+      <if test="email!= null">email,</if>
+      <if test="admin!= null">admin,</if>
+      <if test="employeeNumber!= null">employeeNumber,</if>
+      <if test="wechatNumber!= null">wechatNumber,</if>
+      <if test="wechatName!= null">wechatName,</if>
+      <if test="phoneNumber!= null">phoneNumber,</if>
+      <if test="enterpriseWechatName!= null">enterpriseWechatName,</if>
+      <if test="identity!= null">identity,</if>
+      <if test="permission!= null">permission,</if>
+      <if test="isReviewed!= null">isReviewed,</if>
+      <if test="employeeRating!= null">employeeRating,</if>
+      <if test="remarks!= null">remarks,</if>
+      <if test="dept!= null">dept_id</if>
+    </trim>
+    )
+    VALUES (
+    <trim prefix="" suffix="" suffixOverrides=",">
+      <if test="name!= null">#{name},</if>
+      <if test="password!= null">#{password},</if>
+      <if test="age!= null">#{age},</if>
+      <if test="email!= null">#{email},</if>
+      <if test="admin!= null">#{admin},</if>
+      <if test="employeeNumber!= null">#{employeeNumber},</if>
+      <if test="wechatNumber!= null">#{wechatNumber},</if>
+      <if test="wechatName!= null">#{wechatName},</if>
+      <if test="phoneNumber!= null">#{phoneNumber},</if>
+      <if test="enterpriseWechatName!= null">#{enterpriseWechatName},</if>
+      <if test="identity!= null">#{identity},</if>
+      <if test="permission!= null">#{permission},</if>
+      <if test="isReviewed!= null">#{isReviewed},</if>
+      <if test="employeeRating!= null">#{employeeRating},</if>
+      <if test="remarks!= null">#{remarks},</if>
+      <if test="dept!= null">#{dept.id}</if>
+    </trim>
+    )
+  </insert>
+
+
+  <insert id="insertEmployeeSkills" parameterType="Employee">
+    INSERT INTO employee_skills (
+    <trim prefix="" suffix="" suffixOverrides=",">
+      id,
+      <if test="ppt!= null">ppt,</if>
+      <if test="customer_service!= null">customer_service,</if>
+      <if test="poster!= null">poster,</if>
+      <if test="album!= null">album,</if>
+      <if test="thesis!= null">thesis,</if>
+      <if test="copywriting!= null">copywriting,</if>
+      <if test="professional_skill!= null">professional_skill,</if>
+      <if test="store_manager!= null">store_manager,</if>
+      <if test="ppt_score!= null">ppt_score,</if>
+      <if test="customer_service_score!= null">customer_service_score,</if>
+      <if test="poster_score!= null">poster_score,</if>
+      <if test="album_score!= null">album_score,</if>
+      <if test="thesis_score!= null">thesis_score,</if>
+      <if test="copywriting_score!= null">copywriting_score,</if>
+      <if test="professional_skill_score!= null">professional_skill_score,</if>
+      <if test="store_manager_score!= null">store_manager_score</if>
+    </trim>
+    )
+    VALUES (
+    <trim prefix="" suffix="" suffixOverrides=",">
+      #{id},
+      <if test="ppt!= null">#{ppt},</if>
+      <if test="customer_service!= null">#{customer_service},</if>
+      <if test="poster!= null">#{poster},</if>
+      <if test="album!= null">#{album},</if>
+      <if test="thesis!= null">#{thesis},</if>
+      <if test="copywriting!= null">#{copywriting},</if>
+      <if test="professional_skill!= null">#{professional_skill},</if>
+      <if test="store_manager!= null">#{store_manager},</if>
+      <if test="ppt_score!= null">#{ppt_score},</if>
+      <if test="customer_service_score!= null">#{customer_service_score},</if>
+      <if test="poster_score!= null">#{poster_score},</if>
+      <if test="album_score!= null">#{album_score},</if>
+      <if test="thesis_score!= null">#{thesis_score},</if>
+      <if test="copywriting_score!= null">#{copywriting_score},</if>
+      <if test="professional_skill_score!= null">#{professional_skill_score},</if>
+      <if test="store_manager_score!= null">#{store_manager_score}</if>
+    </trim>
+    )
+  </insert>
+
+
+  <select id="selectEmployeeByNameAndPassword" parameterType="map" resultType="com.example.Employee">
+        SELECT * FROM employee
+        WHERE name = #{name} AND password = #{password}
+    </select>
+</mapper>

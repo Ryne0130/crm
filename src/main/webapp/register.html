@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        form {
+            width: 90%;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+<form id="registrationForm" action="/register" method="post" enctype="multipart/form-data"">
+    <h2>员工信息注册</h2>
+    <p>请填写真实的资料，用于派单/日常工作和结算工资的时候联系你，填完会由管理员审核，乱填的人会列入企业黑名单。</p>
+    <label for="name">姓名：</label>
+    <input type="text" name="name" id="name" required><br><br>
+    <label for="wechatNumber">员工微信号：</label>
+    <input type="text" name="wechatNumber" id="wechatNumber" required><br><br>
+    <label for="wechatName">员工微信名：</label>
+    <input type="text" name="wechatName" id="wechatName" required><br><br>
+    <label for="phoneNumber">员工手机号：</label>
+    <input type="text" name="phoneNumber" id="phoneNumber" required><br><br>
+    <label for="enterpriseWechatName">员工企业微信名：</label>
+    <input type="text" name="enterpriseWechatName" id="enterpriseWechatName" required><br><br>
+    <label for="identity">员工身份：</label>
+    <select name="identity" id="identity">
+        <option value="设计师">设计师</option>
+        <option value="客服">客服</option>
+    </select><br><br>
+    <label for="qrCodeImage">微信收款二维码图（用于发工资）：</label>
+    <input type="file" name="qrCodeImage" id="qrCodeImage" required><br><br>
+    <label>员工拥有的技能是：</label><br><br>
+    <input type="checkbox" name="ppt">PPT 设计<br><br>
+    <input type="checkbox" name="customer_service">客服<br><br>
+    <input type="checkbox" name="poster">海报设计<br><br>
+    <input type="checkbox" name="album">画册设计<br><br>
+    <input type="checkbox" name="copywriting">文案写作<br><br>
+    <input type="checkbox" name="thesis" onchange="showThesisInput(this)">论文<br><br>
+    <input type="text" name="thesisDetails" style="display: none;" placeholder="论文的专业是（可填多个）"><br><br>
+    <input type="checkbox" name="professional_skill" onchange="showProfessionalSkillInput(this)">其他的专业技能<br><br>
+    <input type="text" name="professionalSkillDetails" style="display: none;" placeholder="专业技能是（可填多个）"><br><br>
+    <label for="password">员工密码：</label>
+    <input type="password" name="password" id="password" style="font-family: monospace; letter-spacing: 1px;" required><br><br>
+    <input type="submit" value="注册" onclick="submitForm()">
+</form>
+</body>
+<script>
+    function showThesisInput(checkbox) {
+        const input = document.getElementsByName('thesisDetails')[0];
+        if (checkbox.checked) {
+            input.style.display = 'block';
+        } else {
+            input.style.display = 'none';
+        }
+    }
+
+    function showProfessionalSkillInput(checkbox) {
+        const input = document.getElementsByName('professionalSkillDetails')[0];
+        if (checkbox.checked) {
+            input.style.display = 'block';
+        } else {
+            input.style.display = 'none';
+        }
+    }
+    function submitForm() {
+        // 先运行校验方法
+        if (!validateForm() ||!validatePassword()) {
+            return;
+        }
+        // 弹出提示框确认是否检查清楚资料
+        const confirmMessage = "请检查清楚所有资料无误再提交，是否检查清楚？";
+        if (confirm(confirmMessage)) {
+            const form = document.getElementById('registrationForm');
+            const formData = new FormData(form);
+
+            fetch('/employee/register.do', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                if (response.ok) {
+                alert('注册成功');
+                // 清空输入框的值
+                const inputs = form.getElementsByTagName('input');
+                for (let input of inputs) {
+                    input.value = '';
+                }
+            } else {
+                // 处理后端返回的错误
+                response.text().then(errorMessage => {
+                    alert('注册失败：' + errorMessage);
+            });
+            }
+        })
+        .catch(error => {
+                console.error('发生错误:', error);
+            alert('发生错误，请检查网络或服务器状态');
+        });
+        } else {
+            // 用户选择否，不提交
+            return;
+        }
+    }
+
+    function validatePassword() {
+        var password = document.getElementById("password").value;
+        if (password.length < 8 ||!/[a-z]/.test(password) ||!/[A-Z]/.test(password) ||!/\d/.test(password)) {
+            alert("密码必须至少 8 位，包含大写字母、小写字母和数字");
+            return false;
+        }
+        return true;
+    }
+
+    function validateForm() {
+        var name = document.getElementById("name").value;
+        if (name === "") {
+            alert("员工姓名不能为空");
+            return false;
+        }
+
+        var wechatNumber = document.getElementById("wechatNumber").value;
+        if (wechatNumber === "") {
+            alert("员工微信号不能为空");
+            return false;
+        }
+
+        var wechatName = document.getElementById("wechatName").value;
+        if (wechatName === "") {
+            alert("员工微信名不能为空");
+            return false;
+        }
+
+        var phoneNumber = document.getElementById("phoneNumber").value;
+        if (phoneNumber === "") {
+            alert("员工手机号不能为空");
+            return false;
+        } else if (!/^\d{11}$/.test(phoneNumber)) {
+            alert("员工手机号必须为 11 位数字");
+            return false;
+        }
+
+        var enterpriseWechatName = document.getElementById("enterpriseWechatName").value;
+        if (enterpriseWechatName === "") {
+            alert("员工企业微信名不能为空");
+            return false;
+        }
+
+        var qrCodeImage = document.getElementById("qrCodeImage").value;
+        if (qrCodeImage === "") {
+            alert("员工微信收款二维码不能为空");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+</body>
+
+</html>
